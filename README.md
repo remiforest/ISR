@@ -1,71 +1,125 @@
-# 💡 ISR: Intentional Software Representation
+# ISR: Intentional Software Representation
 
-**ISR (Intentional Software Representation)** is an AI-assisted architectural approach that establishes a clear, concise, and living representation of a software system's core intention, serving as the single source of truth for AI co-architecting.
+ISR captures the **intention** behind a software system — the "why", not the "how". It enables LLMs to act as reasoned co-architects across sessions.
 
-## Why ISR?
+## The Problem
 
-Traditional software development using LLMs suffers from:
-* **Context Loss:** AI forgets the overarching design between sessions.
-* **Diluted Intent:** Code often reflects *what* is done, not *why* it was designed that way.
-* **Architectural Drift:** Changes often violate initial principles without detection.
+- LLMs lose context between sessions
+- Design intent gets diluted over time
+- Code shows *what* is done, not *why*
+- Architectural drift goes undetected
 
-ISR solves this by providing the AI with a structured, durable semantic framework, enabling it to act as a **reasoned co-architect**.
+## The Solution
 
----
+A `.isr/` folder containing a **graph of intention nodes**:
+- One concept = one file
+- Flat structure, no hierarchy
+- Explicit relations between concepts
+- LLM validates actions against intent before executing
 
-## ⚙️ Core Components
+## Repository Structure
 
-This repository provides the core documents for implementing the ISR approach. Note that the **canonical language for the structured ISR content is English** for optimal LLM performance, although user dialogue can be multilingual.
+```
+isr/
+├── README.md           # This file
+├── CONTRIBUTING.md     # How to contribute
+├── template/           # Files to copy into your project
+│   ├── _index.md       # Navigation (customize)
+│   ├── root.md         # Project intent (customize)
+│   ├── guide.md        # ISR approach explanation
+│   ├── node.md         # Node definition
+│   ├── index.md        # Index definition
+│   ├── relation.md     # Relation definition
+│   ├── directive.md    # LLM behavior rules
+│   └── bootstrapping.md # Protocol for existing projects
+└── .isr/               # ISR of this project (meta example)
+```
 
-| Document Name | Content Role | Audience |
-| :--- | :--- | :--- |
-| `ISR-vision.md` | **Conceptual Vision** | Human Designer |
-| `ISR-template.md` | **Structured Format** (The Data Model) | LLM / Human |
-| `ISR-directive-LLM.md` | **Continuous Management Rules** | LLM Engine |
-| `ISR-bootstrapping.md` | **Reverse-Engineering Protocol** (Brownfield Start) | LLM Engine |
+## Quick Start
 
----
+### For Humans
 
-## 🚀 Getting Started: Two Workflows
+1. Copy the `template/` folder into your project as `.isr/`
+2. Edit `root.md` with your project's intent
+3. Update `_index.md` with your project name
+4. Start a session with your LLM
 
-The starting procedure depends on the status of your project.
+### For LLMs
 
-### Scenario 1: Starting a New Project (Greenfield)
-The process is **Design-Forward**: Intention drives Implementation.
+To implement ISR on a project, read the `.isr/` files in this order:
+1. `_index.md` — discover all concepts
+2. `guide.md` — understand the approach
+3. `directive.md` — learn the behavior rules
+4. `bootstrapping.md` — if applying to an existing codebase
 
-1.  **Initial Definition:** Manually fill Sections 1 (Overview) and 2 (Glossary) of the `ISR-template.md` with your initial design intentions.
-2.  **LLM Activation:** Feed the LLM the four core documents and the partially filled template.
-3.  **Collaborative Design:** Instruct the LLM to assist in formalizing the rest of the ISR (Workflows, Invariants) **before** writing code (See **Prompt A** below).
-4.  **Continuous Maintenance:** Use the LLM's verification capabilities (Code ↔ ISR checks) to ensure the implementation strictly follows the ISR.
+Then follow the directive to build the project's ISR.
 
-### Scenario 2: Applying ISR to an Existing Project (Brownfield)
-The process is **Reverse-Engineering**: Code reveals the Intention (which must be validated).
+## Node Template
 
-1.  **Provide Context:** Give the LLM access to the existing codebase, file structure, and any legacy documentation.
-2.  **Launch Bootstrapping:** Initiate the LLM using the `ISR-bootstrapping.md` protocol (See **Prompt B** below).
-3.  **Human Arbitration:** The LLM will follow a rigorous 4-phase extraction process. At critical junctures (Glossary, Invariants), the LLM will **pause and ask you for validation** to correct ambiguous or divergent code intentions.
-4.  **Maintenance:** Once the ISR is filled and validated, the LLM switches to the standard **Continuous Maintenance** mode.
+Every node follows this structure:
 
----
+```markdown
+# [Concept Name]
 
-## 🗣️ Initial Prompts
+## Purpose
+Why this exists — one sentence.
 
-Use these prompts to initialize the LLM for the respective scenario.
+## Serves
+Who or what benefits.
 
-### Prompt A: Greenfield Initialization
+## Enables
+What becomes possible.
 
+## Principles
+Rules for this concept.
 
-**Instruction: Initialize ISR for New Project (Greenfield)**
+## Boundaries
+- Does: [responsibilities]
+- Does NOT: [anti-responsibilities]
 
-"You have been provided with the full ISR documentation set: the Vision, Template, and Directives. Your current mode is Design-Forward. Your primary goal is to collaboratively populate the `ISR-Template.md` structure by working with the human designer.
+## Relations
+- other_concept — nature of the link
+```
 
-Action: Acknowledge all ISR documents and request the user to provide the initial content for Section 1. Overview and Section 2. Glossary."
+## Key Principles
 
+- **Intention over implementation** — capture why, not how
+- **One concept per file** — atomic, self-contained
+- **Flat graph** — no hierarchy, concepts link freely
+- **Concise and non-redundant** — no narrative documentation
+- **Living document** — evolves with the project
+- **Prevention over detection** — validate before acting
+- **User arbitration** — never make implicit decisions
+- **English canonical content** — for optimal LLM performance
 
-### Prompt B: Brownfield Initialization
+## LLM Workflow Summary
 
-**Instruction: Initialize ISR for Existing Project (Brownfield)**
+```
+1. Start of session:
+   - Read _index.md → know all concepts
+   - Read guide.md → understand ISR approach
+   - Read root.md → understand project intent
 
-"You have been provided with the full ISR documentation set, including the critical `ISR-bootstrapping.md` directive. Your current mode is Bootstrapping / Reverse-Engineering.
+2. Before any action:
+   - Identify relevant nodes
+   - Load node + its direct relations
+   - Verify action aligns with Purpose, Principles, Boundaries
 
-Action: Confirm you are ready to execute the `ISR-bootstrapping.md` protocol. Immediately request the user to provide access to the source code and any existing documentation needed to begin Phase 1: Semantic Extraction."
+3. Decision:
+   - If aligned → proceed
+   - If ambiguous → ask user
+   - If misaligned → refuse and explain
+
+4. After action (if intent changed):
+   - Update affected nodes
+   - Update _index.md if needed
+   - Maintain bidirectional relations
+```
+
+## Meta Note
+
+This repository uses ISR to describe itself. The `.isr/` folder contains the ISR representation of the ISR project — a recursive example. The `template/` folder is what you copy to start fresh on your own project.
+
+## License
+
+MIT
